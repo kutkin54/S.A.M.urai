@@ -68,11 +68,9 @@ windowSurface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
 pygame.display.set_caption('S.A.M.urai')
 pygame.mouse.set_visible(False)
 
-playerImage = pygame.image.load('resources/my_player.png')
 playerImage = [pygame.image.load('resources/adventurer-run3-0{}.png'.format(i)) for i in range(6)]
 playerRect = playerImage[0].get_rect()
 playerRect.centery = WINDOWHEIGHT / 2
-baddieImage = pygame.image.load('resources/baddie.png')
 
 baddieAddCounter = 0
 baddies = []
@@ -94,7 +92,6 @@ def spawnBaddie(baddies):
                 BADDIESIZE,
                 BADDIESIZE
             ),
-            #'surface': pygame.transform.scale(baddieImage, (BADDIESIZE, BADDIESIZE)),
             'character': random.choice(list(BADDIEPATTERNS.keys()))
     }
     newBaddie['surface'] = font.render(newBaddie['character'], 1, TEXTCOLOR)
