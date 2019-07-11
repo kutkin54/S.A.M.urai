@@ -1,6 +1,16 @@
 import pygame, random, sys
 from pygame.locals import *
 
+class CodePatterns:
+    pass
+
+class TapCodePatterns(CodePatterns):
+    pass
+
+
+class MorsePatterns(CodePatterns):
+    pass
+
 class Game:
     WINDOWWIDTH = 1200
     WINDOWHEIGHT = 80
@@ -65,7 +75,6 @@ class Game:
 
     def __init__(self):
         pygame.init()
-        self.mainClock = pygame.time.Clock()
         pygame.display.set_caption('S.A.M.urai')
         pygame.mouse.set_visible(False)
 
@@ -110,28 +119,34 @@ class Game:
         textrect.topleft = (x, y)
         surface.blit(textobj, textrect)
 
-    def fire(self, attackSequence, baddies):
+    def fireWeapon(self, attackSequence, baddies):
         print(attackSequence)
         if len(baddies) > 0:
             if attackSequence == self.BADDIEPATTERNS[baddies[0]['character']]:
                 self.killBaddie(baddies, baddies[0])
 
-    def playGame(self):
-        attackSequence = []
-        gapStartTime = pygame.time.get_ticks()
-        keying = False
-        windowSurface = pygame.display.set_mode((self.WINDOWWIDTH, self.WINDOWHEIGHT))
+    def drawPlayer(self, windowSurface):
         playerIndex = 0
-
+        numImages = 6
+        framesPerImage = 4
         while True:
-            if len(self.baddies) == 0:
-                self.spawnBaddie(self.baddies)
-                self.BADDIESPEED -= 0.1
+            windowSurface.blit(self.playerImage[(playerIndex // framesPerImage) % numImages], self.playerRect)
+            playerIndex = (playerIndex + 1) % (framesPerImage * numImages)
+            yield
+
+    def drawBaddies(self, windowSurface):
+            for b in self.baddies:
+                windowSurface.blit(b['surface'], b['rect'])
+
+    def handleEvents(self):
+        keying = 0
+        attackSequence = []
+        while True:
             now = pygame.time.get_ticks()
-            if (now - gapStartTime > self.SYMBOLGAP * self.timingMultiplier * self.fuzzFactor) and not keying and len(attackSequence) > 0:
-                self.fire(attackSequence, self.baddies)
+            if (now - self.gapStartTime > self.SYMBOLGAP * self.timingMultiplier * self.fuzzFactor) and not keying and len(attackSequence) > 0:
+                self.fireWeapon(attackSequence, self.baddies)
                 attackSequence = []
-                gapStartTime = now
+                self.gapStartTime = now
 
             for event in pygame.event.get():
                 if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
@@ -141,12 +156,12 @@ class Game:
                     if event.key == K_SPACE:
                         keying = True
                         keyStartTime = gapEndTime = pygame.time.get_ticks()
-                        gapElapsedTime = gapEndTime - gapStartTime
+                        gapElapsedTime = gapEndTime - self.gapStartTime
 
                 if event.type == KEYUP:
                     if event.key == K_SPACE:
                         keying = False
-                        keyEndTime = gapStartTime = pygame.time.get_ticks()
+                        keyEndTime = self.gapStartTime = pygame.time.get_ticks()
                         keyElapsedTime = keyEndTime - keyStartTime
 
                         if keyElapsedTime < self.DIT * self.timingMultiplier * self.fuzzFactor:
@@ -156,8 +171,6 @@ class Game:
                         else: # too long
                             attackSequence = []
 
-                            
-
                     #if event.key == K_m:
                     #    if musicPlaying:
                     #        pygame.mixer.music.stop()
@@ -166,7 +179,27 @@ class Game:
                     #    musicPlaying = not musicPlaying
         #        if event.type == MOUSEBUTTONUP:
         #            foods.append(pygame.Rect(event.pos[0] - FOODSIZE // 2, event.pos[1] - FOODSIZE // 2, FOODSIZE, FOODSIZE))
-                    
+            yield
+
+    def drawScore(self, windowSurface, score, topScore):
+        #drawText('Score: %s' % (score), font, windowSurface, 10, 0)
+        #drawText('Top Score: %s' % (topScore), font, windowSurface, 10, 40)
+        pass
+
+    def playGame(self):
+        self.gapStartTime = pygame.time.get_ticks()
+        windowSurface = pygame.display.set_mode((self.WINDOWWIDTH, self.WINDOWHEIGHT))
+        mainClock = pygame.time.Clock()
+        drawPlayerGen = self.drawPlayer(windowSurface)
+        eventHandler = self.handleEvents()
+        score = topScore = 0
+
+        while True:
+            if len(self.baddies) == 0:
+                self.spawnBaddie(self.baddies)
+                self.BADDIESPEED -= 0.1
+
+            next(eventHandler)
 
             for b in self.baddies:
                 b['rect'].move_ip(self.BADDIESPEED, 0)
@@ -177,14 +210,10 @@ class Game:
 
             windowSurface.fill(self.BACKGROUNDCOLOR)
 
-            windowSurface.blit(self.playerImage[(playerIndex // 4) % 6], self.playerRect)
-            playerIndex = (playerIndex + 1)
+            next(drawPlayerGen)
+            self.drawBaddies(windowSurface)
 
-            for b in self.baddies:
-                windowSurface.blit(b['surface'], b['rect'])
-
-            #drawText('Score: %s' % (score), font, windowSurface, 10, 0)
-            #drawText('Top Score: %s' % (topScore), font, windowSurface, 10, 40)
+            self.drawScore(windowSurface, score, topScore)
 
             pygame.display.update()
 
@@ -192,7 +221,7 @@ class Game:
                 topScore = max(topScore, score)
                 break
 
-            self.mainClock.tick(self.FPS)
+            mainClock.tick(self.FPS)
 
 if __name__ == "__main__":
     g = Game()
