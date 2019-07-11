@@ -5,7 +5,41 @@ class CodePatterns:
     pass
 
 class TapCodePatterns(CodePatterns):
-    pass
+    TAP = 1
+    SPACE = 1
+    BADDIEPATTERNS = {
+        'A': [TAP, SPACE, TAP],
+        'B': [TAP, SPACE, TAP, TAP],
+        'C': [TAP, SPACE, TAP, TAP, TAP],
+        'K': [TAP, SPACE, TAP, TAP, TAP],
+        'D': [TAP, SPACE, TAP, TAP, TAP, TAP],
+        'E': [TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
+
+        'F': [TAP, TAP, SPACE, TAP],
+        'G': [TAP, TAP, SPACE, TAP, TAP],
+        'H': [TAP, TAP, SPACE, TAP, TAP, TAP],
+        'I': [TAP, TAP, SPACE, TAP, TAP, TAP, TAP],
+        'J': [TAP, TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
+
+        'L': [TAP, TAP, TAP, SPACE, TAP],
+        'M': [TAP, TAP, TAP, SPACE, TAP, TAP],
+        'N': [TAP, TAP, TAP, SPACE, TAP, TAP, TAP],
+        'O': [TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP],
+        'P': [TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
+
+        'Q': [TAP, TAP, TAP, TAP, SPACE, TAP],
+        'R': [TAP, TAP, TAP, TAP, SPACE, TAP, TAP],
+        'S': [TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP],
+        'T': [TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP],
+        'U': [TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
+
+        'V': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP],
+        'W': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP, TAP],
+        'X': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP],
+        'Y': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP],
+        'Z': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
+    }
+
 
 
 class MorsePatterns(CodePatterns):
