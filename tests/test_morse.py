@@ -54,3 +54,14 @@ def test_morse_dah_too_short():
     transmitting = True
     duration = 249 
     assert len(m.getSymbol(transmitting, duration)) == 0
+
+def test_morse_get_a():
+    m = MorseCodePatterns()
+    seq = ['DIT', 'DAH']
+    assert 'A' in m.getCharacter(seq)
+
+def test_tap_get_a():
+    m = TapCodePatterns()
+    seq = ['TAP', 'PAUSE', 'TAP']
+    assert 'A' in m.getCharacter(seq)
+
