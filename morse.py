@@ -1,49 +1,6 @@
 import pygame, random, sys
 from pygame.locals import *
-
-class CodePatterns:
-    pass
-
-class TapCodePatterns(CodePatterns):
-    TAP = 1
-    SPACE = 1
-    BADDIEPATTERNS = {
-        'A': [TAP, SPACE, TAP],
-        'B': [TAP, SPACE, TAP, TAP],
-        'C': [TAP, SPACE, TAP, TAP, TAP],
-        'K': [TAP, SPACE, TAP, TAP, TAP],
-        'D': [TAP, SPACE, TAP, TAP, TAP, TAP],
-        'E': [TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
-
-        'F': [TAP, TAP, SPACE, TAP],
-        'G': [TAP, TAP, SPACE, TAP, TAP],
-        'H': [TAP, TAP, SPACE, TAP, TAP, TAP],
-        'I': [TAP, TAP, SPACE, TAP, TAP, TAP, TAP],
-        'J': [TAP, TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
-
-        'L': [TAP, TAP, TAP, SPACE, TAP],
-        'M': [TAP, TAP, TAP, SPACE, TAP, TAP],
-        'N': [TAP, TAP, TAP, SPACE, TAP, TAP, TAP],
-        'O': [TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP],
-        'P': [TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
-
-        'Q': [TAP, TAP, TAP, TAP, SPACE, TAP],
-        'R': [TAP, TAP, TAP, TAP, SPACE, TAP, TAP],
-        'S': [TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP],
-        'T': [TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP],
-        'U': [TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
-
-        'V': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP],
-        'W': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP, TAP],
-        'X': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP],
-        'Y': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP],
-        'Z': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
-    }
-
-
-
-class MorsePatterns(CodePatterns):
-    pass
+from code_patterns import *
 
 class Game:
     WINDOWWIDTH = 1200
@@ -59,54 +16,6 @@ class Game:
     BADDIESPEED = -1
     BADDIESIZE = 40
 
-    DIT = 1
-    DAH = 3 * DIT
-    SYMBOLGAP = DIT
-    LETTERGAP = 3 * DIT
-    WORDGAP = 7 * DIT
-
-    timingMultiplier = 100
-    fuzzFactor = 1.5
-
-    BADDIEPATTERNS = {
-        'A': [DIT, DAH],
-        'B': [DAH, DIT, DIT, DIT],
-        'C': [DAH, DIT, DAH, DIT],
-        'D': [DAH, DIT, DIT],
-        'E': [DIT],
-        'F': [DIT, DIT, DAH, DIT],
-        'G': [DAH, DAH, DIT],
-        'H': [DIT, DIT, DIT, DIT],
-        'I': [DIT, DIT],
-        'J': [DIT, DAH, DAH, DAH],
-        'K': [DAH, DIT, DAH],
-        'L': [DIT, DAH, DIT, DIT],
-        'M': [DAH, DAH],
-        'N': [DAH, DIT],
-        'O': [DAH, DAH, DAH],
-        'P': [DIT, DAH, DAH, DIT],
-        'Q': [DAH, DAH, DIT, DAH],
-        'R': [DIT, DAH, DIT],
-        'S': [DIT, DIT, DIT],
-        'T': [DAH],
-        'U': [DIT, DIT, DAH],
-        'V': [DIT, DIT, DIT, DAH],
-        'W': [DIT, DAH, DAH],
-        'X': [DAH, DIT, DIT, DAH],
-        'Y': [DAH, DIT, DAH, DAH],
-        'Z': [DAH, DAH, DIT, DIT],
-        '1': [DIT, DAH, DAH, DAH, DAH],
-        '2': [DIT, DIT, DAH, DAH, DAH],
-        '3': [DIT, DIT, DIT, DAH, DAH],
-        '4': [DIT, DIT, DIT, DIT, DAH],
-        '5': [DIT, DIT, DIT, DIT, DIT],
-        '6': [DAH, DIT, DIT, DIT, DIT],
-        '7': [DAH, DAH, DIT, DIT, DIT],
-        '8': [DAH, DAH, DAH, DIT, DIT],
-        '9': [DAH, DAH, DAH, DAH, DIT],
-        '0': [DAH, DAH, DAH, DAH, DAH],
-    }
-
     def __init__(self):
         pygame.init()
         pygame.display.set_caption('S.A.M.urai')
@@ -120,7 +29,7 @@ class Game:
         self.baddies = []
         self.font = pygame.font.SysFont(None, 72)
 
-
+        self.codePatterns = MorseCodePatterns()
 
     def playerHasHitBaddie(self, player, baddies):
         return False
@@ -137,7 +46,7 @@ class Game:
                     self.BADDIESIZE,
                     self.BADDIESIZE
                 ),
-                'character': random.choice(list(self.BADDIEPATTERNS.keys()))
+                'character': random.choice(list(self.codePatterns.getAlphabet()))
         }
         newBaddie['surface'] = self.font.render(newBaddie['character'], 1, self.TEXTCOLOR)
 
@@ -155,8 +64,9 @@ class Game:
 
     def fireWeapon(self, attackSequence, baddies):
         print(attackSequence)
+        attackedCharacterList = self.codePatterns.getCharacter(attackSequence)
         if len(baddies) > 0:
-            if attackSequence == self.BADDIEPATTERNS[baddies[0]['character']]:
+            if baddies[0]['character'] in attackedCharacterList:
                 self.killBaddie(baddies, baddies[0])
 
     def drawPlayer(self, windowSurface):
@@ -177,7 +87,9 @@ class Game:
         attackSequence = []
         while True:
             now = pygame.time.get_ticks()
-            if (now - self.gapStartTime > self.SYMBOLGAP * self.timingMultiplier * self.fuzzFactor) and not keying and len(attackSequence) > 0:
+            #if (now - self.gapStartTime > self.SYMBOLGAP * self.timingMultiplier * self.fuzzFactor) and not keying and len(attackSequence) > 0:
+            pauseLengthIndicatingFire = self.codePatterns.getSymbolDefinition('SYMBOLSPACE')['duration'] * self.codePatterns.timingMultiplier * self.codePatterns.fuzzFactor
+            if (now - self.gapStartTime > pauseLengthIndicatingFire) and not keying and len(attackSequence) > 0:
                 self.fireWeapon(attackSequence, self.baddies)
                 attackSequence = []
                 self.gapStartTime = now
@@ -191,18 +103,21 @@ class Game:
                         keying = True
                         keyStartTime = gapEndTime = pygame.time.get_ticks()
                         gapElapsedTime = gapEndTime - self.gapStartTime
+                        symbol = self.codePatterns.getSymbol(False, gapElapsedTime)
+                        if len(symbol) > 0:
+                            attackSequence.append(symbol[0])
+                        else:
+                            attackSequence = []
 
                 if event.type == KEYUP:
                     if event.key == K_SPACE:
                         keying = False
                         keyEndTime = self.gapStartTime = pygame.time.get_ticks()
                         keyElapsedTime = keyEndTime - keyStartTime
-
-                        if keyElapsedTime < self.DIT * self.timingMultiplier * self.fuzzFactor:
-                            attackSequence.append(self.DIT)
-                        elif keyElapsedTime < self.DAH * self.timingMultiplier * self.fuzzFactor:
-                            attackSequence.append(self.DAH)
-                        else: # too long
+                        symbol = self.codePatterns.getSymbol(True, gapElapsedTime)
+                        if len(symbol) > 0:
+                            attackSequence.append(symbol[0])
+                        else:
                             attackSequence = []
 
                     #if event.key == K_m:
