@@ -52,12 +52,11 @@ class Game:
 
         self.baddies.append(newBaddie)
 
-
     def killBaddie(self, baddies, baddy):
         self.baddies.remove(baddy)
 
     def drawText(self, text, font, surface, x, y):
-        textobj = font.render(text, 1, TEXTCOLOR)
+        textobj = font.render(text, 1, self.TEXTCOLOR)
         textrect = textobj.get_rect()
         textrect.topleft = (x, y)
         surface.blit(textobj, textrect)
@@ -80,8 +79,14 @@ class Game:
             yield
 
     def drawBaddies(self, windowSurface):
-            for b in self.baddies:
-                windowSurface.blit(b['surface'], b['rect'])
+        for b in self.baddies:
+            windowSurface.blit(b['surface'], b['rect'])
+
+    def drawAttackSequence(self, windowSurface, attackSequence):
+        font = pygame.font.SysFont(None, 36)
+        x = 1
+        y = 1
+        self.drawText(' '.join(attackSequence), font, windowSurface, x, y)
 
     def handleEvents(self):
         keying = 0
@@ -134,6 +139,7 @@ class Game:
                     #    musicPlaying = not musicPlaying
         #        if event.type == MOUSEBUTTONUP:
         #            foods.append(pygame.Rect(event.pos[0] - FOODSIZE // 2, event.pos[1] - FOODSIZE // 2, FOODSIZE, FOODSIZE))
+            self.attackSequence = attackSequence
             yield
 
     def drawScore(self, windowSurface, score, topScore):
@@ -148,6 +154,7 @@ class Game:
         drawPlayerGen = self.drawPlayer(windowSurface)
         eventHandler = self.handleEvents()
         score = topScore = 0
+        self.attackSequence = []
 
         while True:
             if len(self.baddies) == 0:
@@ -164,8 +171,8 @@ class Game:
                     self.killBaddie(self.baddies, b)
 
             windowSurface.fill(self.BACKGROUNDCOLOR)
-
             next(drawPlayerGen)
+            self.drawAttackSequence(windowSurface, self.attackSequence)
             self.drawBaddies(windowSurface)
 
             self.drawScore(windowSurface, score, topScore)
