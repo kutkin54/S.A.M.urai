@@ -1,67 +1,73 @@
 import pytest
-from morse import *
+from code_patterns import *
+import string
+
+morsePattern = MorseCodePatterns()
+tapPattern = TapCodePatterns()
 
 def test_morse_dit_precise():
-    m = MorseCodePatterns()
     transmitting = True
     duration = 100
-    assert m.getSymbol(transmitting, duration)[0] == 'DIT'
+    assert morsePattern.getSymbol(transmitting, duration)[0] == 'DIT'
 
 def test_morse_dah_precise():
-    m = MorseCodePatterns()
     transmitting = True
     duration = 300
-    assert m.getSymbol(transmitting, duration)[0] == 'DAH'
+    assert morsePattern.getSymbol(transmitting, duration)[0] == 'DAH'
 
 def test_morse_dit_short():
-    m = MorseCodePatterns()
     transmitting = True
     duration = 51 
-    assert m.getSymbol(transmitting, duration)[0] == 'DIT'
+    assert morsePattern.getSymbol(transmitting, duration)[0] == 'DIT'
 
 def test_morse_dit_long():
-    m = MorseCodePatterns()
     transmitting = True
     duration = 149
-    assert m.getSymbol(transmitting, duration)[0] == 'DIT'
+    assert morsePattern.getSymbol(transmitting, duration)[0] == 'DIT'
 
 def test_morse_dah_short():
-    m = MorseCodePatterns()
     transmitting = True
     duration = 251 
-    assert m.getSymbol(transmitting, duration)[0] == 'DAH'
+    assert morsePattern.getSymbol(transmitting, duration)[0] == 'DAH'
 
 def test_morse_dah_long():
-    m = MorseCodePatterns()
     transmitting = True
     duration = 349
-    assert m.getSymbol(transmitting, duration)[0] == 'DAH'
+    assert morsePattern.getSymbol(transmitting, duration)[0] == 'DAH'
 
 def test_morse_dit_too_short():
-    m = MorseCodePatterns()
     transmitting = True
     duration = 49 
-    assert len(m.getSymbol(transmitting, duration)) == 0
+    assert len(morsePattern.getSymbol(transmitting, duration)) == 0
 
 def test_morse_dit_too_long():
-    m = MorseCodePatterns()
     transmitting = True
     duration = 151 
-    assert len(m.getSymbol(transmitting, duration)) == 0
+    assert len(morsePattern.getSymbol(transmitting, duration)) == 0
 
 def test_morse_dah_too_short():
-    m = MorseCodePatterns()
     transmitting = True
     duration = 249 
-    assert len(m.getSymbol(transmitting, duration)) == 0
+    assert len(morsePattern.getSymbol(transmitting, duration)) == 0
 
 def test_morse_get_a():
-    m = MorseCodePatterns()
     seq = ['DIT', 'DAH']
-    assert 'A' in m.getCharacter(seq)
+    assert 'A' in morsePattern.getCharacter(seq)
 
 def test_tap_get_a():
-    m = TapCodePatterns()
     seq = ['TAP', 'PAUSE', 'TAP']
-    assert 'A' in m.getCharacter(seq)
+    assert 'A' in tapPattern.getCharacter(seq)
+
+def test_get_alphabet():
+    alphabet = string.ascii_uppercase + string.digits
+    assert set(morsePattern.getAlphabet()) == set(alphabet)
+
+def test_get_symbol_DIT_definition():
+    dit = {'transmitting': True, 'duration': 1}
+    assert morsePattern.getSymbolDefinition('DIT') == dit
+
+def test_get_symbol_DAH_definition():
+    dah = {'transmitting': True, 'duration': 3}
+    assert morsePattern.getSymbolDefinition('DAH') == dah
+
 

@@ -100,13 +100,6 @@ class Game:
                     attackSequence = []
                     self.gapStartTime = now
 
-            #if (now - self.gapStartTime > self.SYMBOLGAP * self.timingMultiplier * self.fuzzFactor) and not keying and len(attackSequence) > 0:
-            #pauseLengthIndicatingFire = self.codePatterns.getSymbolDefinition('SYMBOLSPACE')['duration'] * self.codePatterns.timingMultiplier * self.codePatterns.fuzzFactor
-            #if (now - self.gapStartTime > pauseLengthIndicatingFire) and not keying and len(attackSequence) > 0:
-                #self.fireWeapon(attackSequence, self.baddies)
-                #attackSequence = []
-                #self.gapStartTime = now
-
             for event in pygame.event.get():
                 if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                     self.terminate()
@@ -117,7 +110,7 @@ class Game:
                         keyStartTime = gapEndTime = pygame.time.get_ticks()
                         gapElapsedTime = gapEndTime - self.gapStartTime
                         symbol = self.codePatterns.getSymbol(False, gapElapsedTime)
-                        #print('gap elapsed time {} means {}'.format(gapElapsedTime, symbol))
+                        print('gap elapsed time {} means {}'.format(gapElapsedTime, symbol))
                         if len(symbol) > 0:
                             attackSequence.append(symbol[0])
 
@@ -127,7 +120,7 @@ class Game:
                         keyEndTime = self.gapStartTime = pygame.time.get_ticks()
                         keyElapsedTime = keyEndTime - keyStartTime
                         symbol = self.codePatterns.getSymbol(True, keyElapsedTime)
-                        #print('key elapsed time {} means {}'.format(keyElapsedTime, symbol))
+                        print('key elapsed time {} means {}'.format(keyElapsedTime, symbol))
                         if len(symbol) > 0:
                             attackSequence.append(symbol[0])
 
@@ -188,4 +181,3 @@ class Game:
 if __name__ == "__main__":
     g = Game()
     g.playGame()
-
