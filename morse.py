@@ -1,55 +1,19 @@
+#TODO: allow a text file to be dropped onto the game; use that text
+
 import pygame, random, sys
 from pygame.locals import *
+from code_patterns import *
+from itertools import cycle
 
-class CodePatterns:
-    pass
-
-class TapCodePatterns(CodePatterns):
-    TAP = 1
-    SPACE = 1
-    BADDIEPATTERNS = {
-        'A': [TAP, SPACE, TAP],
-        'B': [TAP, SPACE, TAP, TAP],
-        'C': [TAP, SPACE, TAP, TAP, TAP],
-        'K': [TAP, SPACE, TAP, TAP, TAP],
-        'D': [TAP, SPACE, TAP, TAP, TAP, TAP],
-        'E': [TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
-
-        'F': [TAP, TAP, SPACE, TAP],
-        'G': [TAP, TAP, SPACE, TAP, TAP],
-        'H': [TAP, TAP, SPACE, TAP, TAP, TAP],
-        'I': [TAP, TAP, SPACE, TAP, TAP, TAP, TAP],
-        'J': [TAP, TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
-
-        'L': [TAP, TAP, TAP, SPACE, TAP],
-        'M': [TAP, TAP, TAP, SPACE, TAP, TAP],
-        'N': [TAP, TAP, TAP, SPACE, TAP, TAP, TAP],
-        'O': [TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP],
-        'P': [TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
-
-        'Q': [TAP, TAP, TAP, TAP, SPACE, TAP],
-        'R': [TAP, TAP, TAP, TAP, SPACE, TAP, TAP],
-        'S': [TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP],
-        'T': [TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP],
-        'U': [TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
-
-        'V': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP],
-        'W': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP, TAP],
-        'X': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP],
-        'Y': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP],
-        'Z': [TAP, TAP, TAP, TAP, TAP, SPACE, TAP, TAP, TAP, TAP, TAP],
-    }
-
-
-
-class MorsePatterns(CodePatterns):
-    pass
+TAPLENGTH = 90
 
 class Game:
     WINDOWWIDTH = 1200
     WINDOWHEIGHT = 80
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
+    GREEN = (10, 255, 10)
+    RED = (255, 10, 10)
     BACKGROUNDCOLOR = WHITE
     TEXTCOLOR = BLACK
 
@@ -58,54 +22,6 @@ class Game:
     ADDNEWBADDIERATE = 150
     BADDIESPEED = -1
     BADDIESIZE = 40
-
-    DIT = 1
-    DAH = 3 * DIT
-    SYMBOLGAP = DIT
-    LETTERGAP = 3 * DIT
-    WORDGAP = 7 * DIT
-
-    timingMultiplier = 100
-    fuzzFactor = 1.5
-
-    BADDIEPATTERNS = {
-        'A': [DIT, DAH],
-        'B': [DAH, DIT, DIT, DIT],
-        'C': [DAH, DIT, DAH, DIT],
-        'D': [DAH, DIT, DIT],
-        'E': [DIT],
-        'F': [DIT, DIT, DAH, DIT],
-        'G': [DAH, DAH, DIT],
-        'H': [DIT, DIT, DIT, DIT],
-        'I': [DIT, DIT],
-        'J': [DIT, DAH, DAH, DAH],
-        'K': [DAH, DIT, DAH],
-        'L': [DIT, DAH, DIT, DIT],
-        'M': [DAH, DAH],
-        'N': [DAH, DIT],
-        'O': [DAH, DAH, DAH],
-        'P': [DIT, DAH, DAH, DIT],
-        'Q': [DAH, DAH, DIT, DAH],
-        'R': [DIT, DAH, DIT],
-        'S': [DIT, DIT, DIT],
-        'T': [DAH],
-        'U': [DIT, DIT, DAH],
-        'V': [DIT, DIT, DIT, DAH],
-        'W': [DIT, DAH, DAH],
-        'X': [DAH, DIT, DIT, DAH],
-        'Y': [DAH, DIT, DAH, DAH],
-        'Z': [DAH, DAH, DIT, DIT],
-        '1': [DIT, DAH, DAH, DAH, DAH],
-        '2': [DIT, DIT, DAH, DAH, DAH],
-        '3': [DIT, DIT, DIT, DAH, DAH],
-        '4': [DIT, DIT, DIT, DIT, DAH],
-        '5': [DIT, DIT, DIT, DIT, DIT],
-        '6': [DAH, DIT, DIT, DIT, DIT],
-        '7': [DAH, DAH, DIT, DIT, DIT],
-        '8': [DAH, DAH, DAH, DIT, DIT],
-        '9': [DAH, DAH, DAH, DAH, DIT],
-        '0': [DAH, DAH, DAH, DAH, DAH],
-    }
 
     def __init__(self):
         pygame.init()
@@ -120,7 +36,8 @@ class Game:
         self.baddies = []
         self.font = pygame.font.SysFont(None, 72)
 
-
+        self.codePatterns = MorseCodePatterns()
+        #self.codePatterns = TapCodePatterns()
 
     def playerHasHitBaddie(self, player, baddies):
         return False
@@ -137,27 +54,28 @@ class Game:
                     self.BADDIESIZE,
                     self.BADDIESIZE
                 ),
-                'character': random.choice(list(self.BADDIEPATTERNS.keys()))
+                'character': random.choice(list(self.codePatterns.getAlphabet()))
         }
         newBaddie['surface'] = self.font.render(newBaddie['character'], 1, self.TEXTCOLOR)
 
         self.baddies.append(newBaddie)
 
-
-    def killBaddie(self, baddies, baddy):
+    def killBaddie(self, baddy):
         self.baddies.remove(baddy)
 
     def drawText(self, text, font, surface, x, y):
-        textobj = font.render(text, 1, TEXTCOLOR)
+        textobj = font.render(text, 1, self.TEXTCOLOR)
         textrect = textobj.get_rect()
         textrect.topleft = (x, y)
         surface.blit(textobj, textrect)
 
-    def fireWeapon(self, attackSequence, baddies):
-        print(attackSequence)
-        if len(baddies) > 0:
-            if attackSequence == self.BADDIEPATTERNS[baddies[0]['character']]:
-                self.killBaddie(baddies, baddies[0])
+    def fireWeapon(self, attackSequence):
+        if len(attackSequence) > 1:
+            rectifiedSequence = self.rectifySequence(attackSequence)
+            attackedCharacterList = self.codePatterns.getCharacter(rectifiedSequence)
+            if len(self.baddies) > 0:
+                if self.baddies[0]['character'] in attackedCharacterList:
+                    self.killBaddie(self.baddies[0])
 
     def drawPlayer(self, windowSurface):
         playerIndex = 0
@@ -169,41 +87,124 @@ class Game:
             yield
 
     def drawBaddies(self, windowSurface):
-            for b in self.baddies:
-                windowSurface.blit(b['surface'], b['rect'])
+        for b in self.baddies:
+            windowSurface.blit(b['surface'], b['rect'])
+
+    def drawAttackSequence(self, windowSurface, attackSequence):
+        #font = pygame.font.SysFont(None, 36)
+        #x = 1
+        #y = 1
+        #self.drawText(' '.join(attackSequence), font, windowSurface, x, y)
+        self.drawConcentricCircles(windowSurface, attackSequence)
+        self.drawStackedBar(windowSurface, attackSequence)
+        self.drawDashes(windowSurface, attackSequence)
+
+    def drawPower(self, windowSurface, sequence):
+        drawConcentricCircles(windowSurface, sequence)
+        drawStackedBar(windowSurface, sequence)
+        drawDashes(windowSurface, sequence)
+
+    def drawStackedBar(self, windowSurface, sequence):
+        width = 5
+        radius = 10
+        windowHeight = windowSurface.get_height()
+        y = windowHeight
+        surface = pygame.Surface((width, windowHeight))
+        surface.fill(self.BACKGROUNDCOLOR)
+
+        colorCycle = cycle([self.GREEN, self.RED])
+        for i in range(0, len(sequence), 2):
+            if len(sequence) > i + 1:
+                color = next(colorCycle)
+                keyed = sequence[i+1] // TAPLENGTH + 1
+                height = radius * keyed
+                pygame.draw.rect(surface, color, (0, y - height, width, height))
+                y -= height + 1
+
+        windowSurface.blit(surface, (0, 0))
+
+    def drawConcentricCircles(self, windowSurface, sequence):
+        radiusInc = 3
+        circles = []
+        windowWidth = windowSurface.get_width()
+        windowHeight = windowSurface.get_height()
+        surface = pygame.Surface((windowWidth, windowHeight))
+        surface.fill(self.BACKGROUNDCOLOR)
+
+        radius = 0
+        for i in range(0, len(sequence), 2):
+            if len(sequence) > i + 1:
+                keyed = sequence[i+1] // TAPLENGTH + 1
+                width = radiusInc * keyed
+                circles.append(radius + width)
+                radius += width
+
+        colorCycle = cycle([self.GREEN, self.RED])
+        if len(circles) % 2 == 0:
+            circles.append(0)
+        for c in circles[::-1]:
+            color = next(colorCycle)
+            pygame.draw.circle(surface, color, (windowWidth // 2, windowHeight // 2), c)
+
+        windowSurface.blit(surface, (0, 0))
+
+
+    def drawDashes(self, windowSurface, sequence):
+        # These are fixed, should be moved out of the function
+        y = radius = xStart = xEnd = 5
+        surface = pygame.Surface((windowSurface.get_width(), 2*radius))
+        surface.fill(self.BACKGROUNDCOLOR)
+
+        for i in range(0, len(sequence), 2):
+            gap = sequence[i] // TAPLENGTH
+            xStart = xEnd + radius * 2 + radius * gap
+
+            if len(sequence) > i + 1:
+                keyed = sequence[i+1] // TAPLENGTH
+                width = radius * keyed
+                xEnd = xStart + width
+
+                # Start dot
+                pygame.draw.circle(surface, self.GREEN, (xStart, y), radius)
+
+                # Middle rect
+                pygame.draw.rect(surface, self.GREEN, (xStart, y - radius, width, radius * 2))
+
+                # End dot
+                pygame.draw.circle(surface, self.GREEN, (xEnd, y), radius)
+
+        windowSurface.blit(surface, (0, 0))
 
     def handleEvents(self):
-        keying = 0
-        attackSequence = []
+        keying = False
+        timingSequence = [0]
+        gapStartTime = keyStartTime = pygame.time.get_ticks()
         while True:
             now = pygame.time.get_ticks()
-            if (now - self.gapStartTime > self.SYMBOLGAP * self.timingMultiplier * self.fuzzFactor) and not keying and len(attackSequence) > 0:
-                self.fireWeapon(attackSequence, self.baddies)
-                attackSequence = []
-                self.gapStartTime = now
 
             for event in pygame.event.get():
-                if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
+                if self.isTerminateEvent(event):
                     self.terminate()
 
-                if event.type == KEYDOWN:
-                    if event.key == K_SPACE:
-                        keying = True
-                        keyStartTime = gapEndTime = pygame.time.get_ticks()
-                        gapElapsedTime = gapEndTime - self.gapStartTime
+                if self.isFireEvent(event) and not keying:
+                    keyStartTime = now
+                    timingSequence.append(0)
+                    keying = True
 
-                if event.type == KEYUP:
-                    if event.key == K_SPACE:
-                        keying = False
-                        keyEndTime = self.gapStartTime = pygame.time.get_ticks()
-                        keyElapsedTime = keyEndTime - keyStartTime
+                if self.isCeaseFireEvent(event) and keying:
+                    gapStartTime = now
+                    timingSequence.append(0)
+                    keying = False
 
-                        if keyElapsedTime < self.DIT * self.timingMultiplier * self.fuzzFactor:
-                            attackSequence.append(self.DIT)
-                        elif keyElapsedTime < self.DAH * self.timingMultiplier * self.fuzzFactor:
-                            attackSequence.append(self.DAH)
-                        else: # too long
-                            attackSequence = []
+            if keying:
+                timingSequence[-1] = now - keyStartTime
+            else:
+                timingSequence[-1] = now - gapStartTime
+                if timingSequence[-1] > self.codePatterns.getSymbolDefinition('LETTERSPACE').get('minDuration') * TAPLENGTH:
+                    self.fireWeapon(timingSequence)
+                    timingSequence = [0]
+
+            yield timingSequence
 
                     #if event.key == K_m:
                     #    if musicPlaying:
@@ -213,37 +214,58 @@ class Game:
                     #    musicPlaying = not musicPlaying
         #        if event.type == MOUSEBUTTONUP:
         #            foods.append(pygame.Rect(event.pos[0] - FOODSIZE // 2, event.pos[1] - FOODSIZE // 2, FOODSIZE, FOODSIZE))
-            yield
+
+    def isTerminateEvent(self, event):
+        return event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE)
+
+    def isFireEvent(self, event):
+        return event.type in (MOUSEBUTTONDOWN, FINGERDOWN) or (event.type == KEYDOWN and event.key == K_SPACE)
+
+    def isCeaseFireEvent(self, event):
+        return event.type in (MOUSEBUTTONUP, FINGERUP) or (event.type == KEYUP and event.key == K_SPACE)
+            
 
     def drawScore(self, windowSurface, score, topScore):
         #drawText('Score: %s' % (score), font, windowSurface, 10, 0)
         #drawText('Top Score: %s' % (topScore), font, windowSurface, 10, 40)
         pass
 
+    def rectifySequence(self, sequence):
+        rectifiedSequence = []
+        step = 1 if self.codePatterns.keepInternalSpaces else 2
+        for i in range(1, len(sequence) - 1, step):
+            tap = sequence[i]
+            symbol = self.codePatterns.getSymbol(i % 2 == 1, tap)
+            if symbol != None:
+                rectifiedSequence.append(symbol)
+            #print(rectifiedSequence)
+
+        return rectifiedSequence
+
     def playGame(self):
-        self.gapStartTime = pygame.time.get_ticks()
         windowSurface = pygame.display.set_mode((self.WINDOWWIDTH, self.WINDOWHEIGHT))
         mainClock = pygame.time.Clock()
         drawPlayerGen = self.drawPlayer(windowSurface)
         eventHandler = self.handleEvents()
         score = topScore = 0
+        self.attackSequence = []
 
         while True:
             if len(self.baddies) == 0:
                 self.spawnBaddie(self.baddies)
                 self.BADDIESPEED -= 0.1
 
-            next(eventHandler)
+            rawSequence = next(eventHandler)
 
             for b in self.baddies:
                 b['rect'].move_ip(self.BADDIESPEED, 0)
 
             for b in self.baddies[:]:
                 if b['rect'].left < 0:
-                    self.killBaddie(self.baddies, b)
+                    self.killBaddie(b)
 
             windowSurface.fill(self.BACKGROUNDCOLOR)
-
+            self.drawAttackSequence(windowSurface, rawSequence)
             next(drawPlayerGen)
             self.drawBaddies(windowSurface)
 
@@ -260,4 +282,3 @@ class Game:
 if __name__ == "__main__":
     g = Game()
     g.playGame()
-
