@@ -30,17 +30,19 @@ class Game:
 
         self.playerImage = [pygame.image.load('resources/adventurer-run3-0{}.png'.format(i)) for i in range(6)]
         self.playerRect = self.playerImage[0].get_rect()
-        self.playerRect.centery = self.WINDOWHEIGHT / 2
+        self.playerRect.bottom = self.WINDOWHEIGHT - 2
 
         self.baddieAddCounter = 0
         self.baddies = []
         self.font = pygame.font.SysFont(None, 72)
 
-        self.codePatterns = MorseCodePatterns()
-        #self.codePatterns = TapCodePatterns()
+        #self.codePatterns = MorseCodePatterns()
+        self.codePatterns = TapCodePatterns()
+
+        self.score = 0
 
     def playerHasHitBaddie(self, player, baddies):
-        return False
+        return any(player.colliderect(b.get('rect')) for b in baddies)
 
     def terminate(self):
         pygame.quit()
@@ -50,7 +52,7 @@ class Game:
         newBaddie = {
                 'rect': pygame.Rect(
                     self.WINDOWWIDTH,
-                    (self.WINDOWHEIGHT - self.BADDIESIZE) / 2,
+                    (self.WINDOWHEIGHT - self.BADDIESIZE) - 2,
                     self.BADDIESIZE,
                     self.BADDIESIZE
                 ),
@@ -63,7 +65,8 @@ class Game:
     def killBaddie(self, baddy):
         self.baddies.remove(baddy)
 
-    def drawText(self, text, font, surface, x, y):
+    def drawText(self, text, surface, x, y):
+        font = pygame.font.SysFont(None, 24)
         textobj = font.render(text, 1, self.TEXTCOLOR)
         textrect = textobj.get_rect()
         textrect.topleft = (x, y)
@@ -76,10 +79,13 @@ class Game:
             if len(self.baddies) > 0:
                 if self.baddies[0]['character'] in attackedCharacterList:
                     self.killBaddie(self.baddies[0])
+                    self.score += len(rectifiedSequence)
+                else:
+                    self.score -= len(rectifiedSequence)
 
     def drawPlayer(self, windowSurface):
         playerIndex = 0
-        numImages = 6
+        numImages = len(self.playerImage)
         framesPerImage = 4
         while True:
             windowSurface.blit(self.playerImage[(playerIndex // framesPerImage) % numImages], self.playerRect)
@@ -95,8 +101,8 @@ class Game:
         #x = 1
         #y = 1
         #self.drawText(' '.join(attackSequence), font, windowSurface, x, y)
-        self.drawConcentricCircles(windowSurface, attackSequence)
-        self.drawStackedBar(windowSurface, attackSequence)
+        #self.drawConcentricCircles(windowSurface, attackSequence)
+        #self.drawStackedBar(windowSurface, attackSequence)
         self.drawDashes(windowSurface, attackSequence)
 
     def drawPower(self, windowSurface, sequence):
@@ -173,7 +179,7 @@ class Game:
                 # End dot
                 pygame.draw.circle(surface, self.GREEN, (xEnd, y), radius)
 
-        windowSurface.blit(surface, (0, 0))
+        windowSurface.blit(surface, (0, 20))
 
     def handleEvents(self):
         keying = False
@@ -226,8 +232,8 @@ class Game:
             
 
     def drawScore(self, windowSurface, score, topScore):
-        #drawText('Score: %s' % (score), font, windowSurface, 10, 0)
-        #drawText('Top Score: %s' % (topScore), font, windowSurface, 10, 40)
+        self.drawText('Score: %s' % (score), windowSurface, 10, 0)
+        #self.drawText('Top Score: %s' % (topScore), windowSurface, 10, 20)
         pass
 
     def rectifySequence(self, sequence):
@@ -247,7 +253,7 @@ class Game:
         mainClock = pygame.time.Clock()
         drawPlayerGen = self.drawPlayer(windowSurface)
         eventHandler = self.handleEvents()
-        score = topScore = 0
+        topScore = 0
         self.attackSequence = []
 
         while True:
@@ -269,15 +275,21 @@ class Game:
             next(drawPlayerGen)
             self.drawBaddies(windowSurface)
 
-            self.drawScore(windowSurface, score, topScore)
+            self.drawScore(windowSurface, self.score, topScore)
 
             pygame.display.update()
 
             if self.playerHasHitBaddie(self.playerRect, self.baddies):
-                topScore = max(topScore, score)
+                topScore = max(topScore, self.score)
                 break
 
             mainClock.tick(self.FPS)
+
+        self.drawText('You died.', windowSurface, 600, 30)
+        pygame.display.update()
+
+        while True:
+            next(eventHandler)
 
 if __name__ == "__main__":
     g = Game()

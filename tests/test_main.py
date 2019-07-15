@@ -1,4 +1,4 @@
 import pytest
-from morse import *
+from main import *
 
 game = Game()

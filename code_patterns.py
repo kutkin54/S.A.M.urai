@@ -1,4 +1,5 @@
 import sys 
+import string
 
 class CodePatterns:
     def __init__(self):
@@ -37,43 +38,49 @@ class TapCodePatterns(CodePatterns):
         self.keepInternalSpaces = True
         symbols = {
                 'TAP': { 'transmitting': True, 'minDuration': 1, 'maxDuration': 1 },
-                'PAUSE': { 'transmitting': False, 'minDuration': 2, 'maxDuration': 4 },
+                'PAUSE': { 'transmitting': False, 'minDuration': 2, 'maxDuration': 5 },
                 'LETTERSPACE': { 'transmitting': False, 'minDuration': 5, 'maxDuration': 6 },
         }
         self.symbols.update(symbols)
 
-        self.alphabet = {
-            'A': ['TAP', 'PAUSE', 'TAP'],
-            'B': ['TAP', 'PAUSE', 'TAP', 'TAP'],
-            'C': ['TAP', 'PAUSE', 'TAP', 'TAP', 'TAP'],
-            'K': ['TAP', 'PAUSE', 'TAP', 'TAP', 'TAP'],
-            'D': ['TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP'],
-            'E': ['TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP', 'TAP'],
+        code = [['TAP'] * (i // 5 + 1) + ['PAUSE'] + ['TAP'] * (i % 5 + 1) for i in range(len(string.ascii_uppercase))]
+        letters = list(string.ascii_uppercase)
+        letters.remove('K')
+        self.alphabet = dict(zip(letters, code))
+        self.alphabet['K'] = self.alphabet['C']
 
-            'F': ['TAP', 'TAP', 'PAUSE', 'TAP'],
-            'G': ['TAP', 'TAP', 'PAUSE', 'TAP', 'TAP'],
-            'H': ['TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP'],
-            'I': ['TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP'],
-            'J': ['TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP', 'TAP'],
-
-            'L': ['TAP', 'TAP', 'TAP', 'PAUSE', 'TAP'],
-            'M': ['TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP'],
-            'N': ['TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP'],
-            'O': ['TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP'],
-            'P': ['TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP', 'TAP'],
-
-            'Q': ['TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP'],
-            'R': ['TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP'],
-            'S': ['TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP'],
-            'T': ['TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP'],
-            'U': ['TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP', 'TAP'],
-
-            'V': ['TAP', 'TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP'],
-            'W': ['TAP', 'TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP'],
-            'X': ['TAP', 'TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP'],
-            'Y': ['TAP', 'TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP'],
-            'Z': ['TAP', 'TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP', 'TAP'],
-        }
+#        self.alphabet = {
+#            'A': ['TAP', 'PAUSE', 'TAP'],
+#            'B': ['TAP', 'PAUSE', 'TAP', 'TAP'],
+#            'C': ['TAP', 'PAUSE', 'TAP', 'TAP', 'TAP'],
+#            'K': ['TAP', 'PAUSE', 'TAP', 'TAP', 'TAP'],
+#            'D': ['TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP'],
+#            'E': ['TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP', 'TAP'],
+#
+#            'F': ['TAP', 'TAP', 'PAUSE', 'TAP'],
+#            'G': ['TAP', 'TAP', 'PAUSE', 'TAP', 'TAP'],
+#            'H': ['TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP'],
+#            'I': ['TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP'],
+#            'J': ['TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP', 'TAP'],
+#
+#            'L': ['TAP', 'TAP', 'TAP', 'PAUSE', 'TAP'],
+#            'M': ['TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP'],
+#            'N': ['TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP'],
+#            'O': ['TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP'],
+#            'P': ['TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP', 'TAP'],
+#
+#            'Q': ['TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP'],
+#            'R': ['TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP'],
+#            'S': ['TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP'],
+#            'T': ['TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP'],
+#            'U': ['TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP', 'TAP'],
+#
+#            'V': ['TAP', 'TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP'],
+#            'W': ['TAP', 'TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP'],
+#            'X': ['TAP', 'TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP'],
+#            'Y': ['TAP', 'TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP'],
+#            'Z': ['TAP', 'TAP', 'TAP', 'TAP', 'TAP', 'PAUSE', 'TAP', 'TAP', 'TAP', 'TAP', 'TAP'],
+#        }
 
 class MorseCodePatterns(CodePatterns):
     def __init__(self):
