@@ -73,7 +73,7 @@ def drawConcentricCircles(windowSurface, sequence):
 
 
 def drawDashes(windowSurface, sequence):
-    # These are fixed, should be moved out
+    # These are fixed, should be moved out of the function
     y = radius = xStart = xEnd = 5
     surface = pygame.Surface((windowSurface.get_width(), 2*radius))
     surface.fill(BACKGROUNDCOLOR)
@@ -103,12 +103,6 @@ def handleEvents():
     timingSequence = [0]
     gapStartTime = keyStartTime = pygame.time.get_ticks()
     while True:
-
-        #if sum(timingSequence) > 700 * TAPLENGTH / 5:
-        #    timingSequence = [0]
-        #    if keying:
-        #        timingSequence.append(0)
-
         now = pygame.time.get_ticks()
 
         for event in pygame.event.get():
@@ -132,7 +126,6 @@ def handleEvents():
             if timingSequence[-1] > TAPLENGTH * 5:
                 timingSequence = [0]
 
-        #print(timingSequence)
         yield timingSequence
 
 def isTerminateEvent(event):
@@ -144,10 +137,27 @@ def isFireEvent(event):
 def isCeaseFireEvent(event):
     return event.type in (MOUSEBUTTONUP, FINGERUP) or (event.type == KEYUP and event.key == K_SPACE)
 
-
 def terminate():
     pygame.quit()
     sys.exit()
+
+def calculateSymbols(sequence):
+    rectifiedSequence = rectifySequence(sequence)
+    if len(rectifiedSequence) > 1:
+        print(rectifiedSequence)
+
+def rectifySequence(sequence):
+    rectifiedSequence = []
+    for i in range(1, len(sequence), 2):
+        tap = sequence[i]
+        rectifiedDuration = max(1, round(tap / TAPLENGTH))
+        if rectifiedDuration > 1:
+            symbol = 'DAH'
+        else:
+            symbol = 'DIT'
+        rectifiedSequence.append(symbol)
+
+    return rectifiedSequence
 
 windowSurface.fill(BACKGROUNDCOLOR)
 
@@ -155,7 +165,8 @@ sequence = handleEvents()
 
 while True:
     windowSurface.fill(BACKGROUNDCOLOR)
-    seq = next(sequence)
-    drawPower(windowSurface, seq)
+    rawSequence = next(sequence)
+    drawPower(windowSurface, rawSequence)
+    calculateSymbols(rawSequence)
     pygame.display.update()
     mainClock.tick(FPS)

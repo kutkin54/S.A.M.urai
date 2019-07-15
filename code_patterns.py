@@ -2,12 +2,12 @@ import sys
 
 class CodePatterns:
     def __init__(self):
-        self.timingMultiplier = 100
-        self.fuzzFactor = 1.5
+        self.keepInternalSpaces = False
+        self.timingMultiplier = 90
         self.symbols = {
                 #'SYMBOLSPACE': { 'transmitting': False, 'duration': 1 },
-                'LETTERSPACE': { 'transmitting': False, 'duration': 3 },
-                'WORDSPACE': { 'transmitting': False, 'duration': 5 }
+                'LETTERSPACE': { 'transmitting': False, 'minDuration': 4 , 'maxDuration': 4},
+                'WORDSPACE': { 'transmitting': False, 'minDuration': 5, 'maxDuration': 6 }
         }
 
         self.alphabet = dict()
@@ -16,11 +16,13 @@ class CodePatterns:
         return list(self.alphabet.keys())
 
     def getSymbol(self, transmitting, duration):
-        idealDuration = round(duration / self.timingMultiplier)
-        #print('{} idealized to {}'.format(duration, idealDuration))
+        idealDuration = max(1, round(duration / self.timingMultiplier))
         symbolPattern = {'transmitting': transmitting, 'duration': idealDuration}
-        keys = [key for (key, value) in self.symbols.items() if value == symbolPattern]
-        return keys
+        #print('{} idealized to {} which is {}'.format(duration, idealDuration, symbolPattern))
+        for (key, value) in self.symbols.items():
+            if value.get('transmitting') == symbolPattern.get('transmitting') and value.get('minDuration') <= idealDuration <= value.get('maxDuration'):
+                return key
+        return None
 
     def getSymbolDefinition(self, key):
         return self.symbols.get(key)
@@ -32,10 +34,11 @@ class CodePatterns:
 class TapCodePatterns(CodePatterns):
     def __init__(self):
         CodePatterns.__init__(self)
+        self.keepInternalSpaces = True
         symbols = {
-                'TAP': { 'transmitting': True, 'duration': 1 },
-                'PAUSE': { 'transmitting': False, 'duration': 2 }, # how to specify these don't take a symbolpace? shorten by 2*symbolspace?
-                'LETTERSPACE': { 'transmitting': False, 'duration': 5 },
+                'TAP': { 'transmitting': True, 'minDuration': 1, 'maxDuration': 1 },
+                'PAUSE': { 'transmitting': False, 'minDuration': 2, 'maxDuration': 4 },
+                'LETTERSPACE': { 'transmitting': False, 'minDuration': 5, 'maxDuration': 6 },
         }
         self.symbols.update(symbols)
 
@@ -76,8 +79,8 @@ class MorseCodePatterns(CodePatterns):
     def __init__(self):
         CodePatterns.__init__(self)
         symbols = {
-                'DIT': { 'transmitting': True, 'duration': 1 },
-                'DAH': { 'transmitting': True, 'duration': 3 }
+                'DIT': { 'transmitting': True, 'minDuration': 0, 'maxDuration': 1 },
+                'DAH': { 'transmitting': True, 'minDuration': 2, 'maxDuration': 5 },
         }
         self.symbols.update(symbols)
 
